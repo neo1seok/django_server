@@ -1,0 +1,5 @@
+[client]
+database = work_report
+host = localhost
+user = ictk
+password = #ictk1234
