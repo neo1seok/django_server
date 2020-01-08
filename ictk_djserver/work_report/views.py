@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -13,9 +14,28 @@ def post_list(request):
 def post_detail(request, pk):
 	post = get_object_or_404(Post, pk=pk)
 	return render(request, 'work_report/post_detail.html', {'post': post})
+
 def post_new(request):
+	print("post_new")
 	if request.method == "POST":
 		form = PostForm(request.POST)
+		if form.is_valid():
+			post = form.save(commit=False)
+			print(request.user)
+			post.author = User('1')
+			post.published_date = timezone.now()
+			print("save before")
+			post.save()
+			print("save")
+			return redirect('post_detail', pk=post.pk)
+	else:
+		form = PostForm()
+	return render(request, 'work_report/post_edit.html', {'form': form})
+
+def post_edit(request, pk):
+	post = get_object_or_404(Post, pk=pk)
+	if request.method == "POST":
+		form = PostForm(request.POST, instance=post)
 		if form.is_valid():
 			post = form.save(commit=False)
 			post.author = request.user
@@ -23,5 +43,5 @@ def post_new(request):
 			post.save()
 			return redirect('post_detail', pk=post.pk)
 	else:
-		form = PostForm()
+		form = PostForm(instance=post)
 	return render(request, 'work_report/post_edit.html', {'form': form})
